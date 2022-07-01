@@ -2,43 +2,54 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Laravel\Sanctum\HasApiTokens;
 use Throwable;
 
-class User extends Authenticatable
+class Admin extends Model
 {
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = [
-        'name', 'email','documento', 'rol', 'password',
-    ];
+    public static function lista_usuarios()
+    {
 
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    protected $hidden = [
-        'password', 'remember_token',
-    ];
+        $sql = 'SELECT * FROM users WHERE estado = 1';
+        $consulta = DB::connection()->select(DB::raw($sql));
 
-    public static function editar_usuario($id)
-    {   
-        if (auth('sanctum')->user()->id != $id) {
-            return 'No autorizado.';
-        }
+        return [
+            "status" => 1,
+            "msg" => "Lista Usuarios",
+            "data" => $consulta
+        ];
+    }
+
+    public static function eliminar_usuario($id)
+    {
+        $sql = 'UPDATE users SET estado = 0 WHERE id =' . $id;
+        $consulta = DB::connection()->select(DB::raw($sql));
+
+        return [
+            "status" => 1,
+            "msg" => "Usuario eliminado correctamente",
+        ];
+    }
+
+    public static function lista_editar($id)
+    {
         $sql = 'SELECT * FROM users WHERE id =' . $id;
+        $consulta = DB::connection()->select(DB::raw($sql));
+
+        return [
+            "status" => 1,
+            "msg" => "Lista Usuarios",
+            "data" => $consulta
+        ];
+    }
+
+    public static function editar_usuario($request)
+    {
+        $sql = 'SELECT * FROM users WHERE id =' . $request->id;
         $objeto_consulta = DB::select($sql);
 
         return [
@@ -49,11 +60,7 @@ class User extends Authenticatable
     }
 
     public static function actualizar_tabla($request){
-
-        if (auth('sanctum')->user()->id != $request->id) {
-            return 'No autorizado.';
-        }
-
+        
         // Query que toma valor segun condiciones especificas.
         $sql = 'SELECT id FROM users WHERE email= ?';
         //Trae el id del email que sea igual al que desea actualizar el usuario.
@@ -113,49 +120,4 @@ class User extends Authenticatable
             return "Error en database". $e;
         }
     }
-
-    public static function verficiar_cambiar_contrasena($request)
-    {
-        if (auth('sanctum')->user()->id != $request->id) {
-            return 'No autorizado.';
-        }
-        if ($request->contrasena_nueva == $request->contrasena_verificar) {
-            $sql = "SELECT * FROM users WHERE id = ?";
-            $sentencia = DB::connection()->select(DB::raw($sql), [
-                $request->id,
-            ]);
-            try{
-                foreach ($sentencia as $usuario) {
-                    if (Hash::check($request->contrasena_anterior, $usuario->password)) {
-                        $sql = "UPDATE users SET users.password = ? WHERE id = ?";
-                        $contrasena_has = Hash::make($request->contrasena_nueva);
-                        $sentencia = DB::connection()->select(DB::raw($sql), [
-                            $contrasena_has,
-                            $request->id,
-                        ]);
-                        return [
-                            "status" => 1,
-                            "msg" => "Contraseña actualizada correctamente!",
-                        ];
-                    } else {
-                        return [
-                            "status" => 0,
-                            "msg" => "Contraseña incorrecta!",
-                        ];
-                    }
-                }
-            }catch(Throwable $e){
-                return [
-                    "status" => 0,
-                    "msg" => "Error en database!",
-                ];
-            }
-        } else {
-            return [
-                "status" => 0,
-                "msg" => "Las contraseñas no son iguales",
-            ];
-        }
-    }
-
 }
