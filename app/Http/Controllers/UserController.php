@@ -10,6 +10,13 @@ use Throwable;
 
 class UserController extends Controller
 {
+    /**
+     * Valida que los datos ingresados por el usuario sean correctos, Crea el Usuario,
+     * Hashea la contraseña y la almacena en la base de datos.
+     *
+     * @param Request $request | Trae todo los datos enviados por el usuario.
+     * @return json | Respuesta de la funcion en Json.
+     */
     public function insertar(Request $request)
     {
         $request->validate([
@@ -34,6 +41,13 @@ class UserController extends Controller
             "msg" => "Registro de usuario exitoso!",
         ]);
     }
+
+
+    /**
+     * Trae los datos que se encuentran almacenados en el auth del usuario.
+     *
+     * @return json | Respuesta de la funcion en json.
+     */
     public function perfil_usuario()
     {
         return response()->json([
@@ -43,6 +57,14 @@ class UserController extends Controller
         ]);
     }
 
+
+    /**
+     * Invoca la Funcion editar usuario y le envia como parametros el id que se encuentra en
+     * el Request.
+     *
+     * @param Request $request
+     * @return json | Array con los elementos almacenados del usuario.
+     */
     public function editar_usuario(Request $request)
     {
         $objeto_consulta = User::editar_usuario($request->id);
@@ -52,6 +74,15 @@ class UserController extends Controller
         ]);
     }
 
+
+    /**
+     * Valida que los datos ingresados cumplan las condiciones y se Invoca la funcion que 
+     * actualizar tabla se le envian como parametros los elementos para actualizar las 
+     * base de datos.
+     *
+     * @param Request $request
+     * @return json | Respuesta de la funcion en Json.
+     */
     public function actualizar_tabla(Request $request)
     {
         $request->validate([
@@ -67,6 +98,14 @@ class UserController extends Controller
         ]);
     }
 
+
+    /**
+     * Se verifica que todos los campos esten completos y se envian los parametros 
+     * necesarios a la funcion verificar cambiar contraseña.
+     *
+     * @param Request $request
+     * @return json | Respuesta de la funcion en Json.
+     */
     public function verficiar_cambiar_contrasena(Request $request)
     {
         $request->validate([

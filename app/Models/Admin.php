@@ -11,59 +11,91 @@ class Admin extends Model
 {
     use HasFactory;
 
+
+    /**
+     * Selecciona de la tabla users todos los elementos que su valor en estado sea igual a 1
+     *
+     * @return json | Retorna un json con un status un msg y una data con todos los datos 
+     * consultado.
+     */
     public static function lista_usuarios()
     {
+        try {
+            $sql = 'SELECT * FROM users WHERE estado = 1';
+            $consulta = DB::connection()->select(DB::raw($sql));
 
-        $sql = 'SELECT * FROM users WHERE estado = 1';
-        $consulta = DB::connection()->select(DB::raw($sql));
-
-        return [
-            "status" => 1,
-            "msg" => "Lista Usuarios",
-            "data" => $consulta
-        ];
+            return [
+                "status" => 1,
+                "msg" => "Lista Usuarios",
+                "data" => $consulta
+            ];
+        } catch (Throwable $e) {
+            return "Error en database" . $e;
+        }
     }
 
+
+    /**
+     * Cambia de la tabla users el estado de la fila cuyo id sea igual al id que recibe como
+     * parametro.
+     *
+     * @param int $id
+     * @return json | Mensaje que especifica si fue correcto el proceso.
+     * @return catch | Error en la base de datos.
+     */
     public static function eliminar_usuario($id)
     {
-        $sql = 'UPDATE users SET estado = 0 WHERE id =' . $id;
-        $consulta = DB::connection()->select(DB::raw($sql));
-
-        return [
-            "status" => 1,
-            "msg" => "Usuario eliminado correctamente",
-        ];
+        try {
+            $sql = 'UPDATE users SET estado = 0 WHERE id =' . $id;
+            $consulta = DB::connection()->select(DB::raw($sql));
+    
+            return [
+                "status" => 1,
+                "msg" => "Usuario eliminado correctamente",
+            ];
+        } catch (Throwable $e) {
+            return "Error en database" . $e;
+        }
     }
+    
 
+    /**
+     * Selecciona de la tabla users los datos de la fila cuyo a id sea igual al id recibido como pametro.
+     * 
+     *
+     * @param int $id
+     * @return json | Mensaje que especifica si fue correcto el proceso. Envia un array con los datos del usuario.
+     * @return catch | Error en la base de datos.
+     */
     public static function lista_editar($id)
     {
-        $sql = 'SELECT * FROM users WHERE id =' . $id;
-        $consulta = DB::connection()->select(DB::raw($sql));
-
-        return [
-            "status" => 1,
-            "msg" => "Lista Usuarios",
-            "data" => $consulta
-        ];
+        try {
+            $sql = 'SELECT * FROM users WHERE id =' . $id;
+            $consulta = DB::connection()->select(DB::raw($sql));
+    
+            return [
+                "status" => 1,
+                "msg" => "Lista Usuarios",
+                "data" => $consulta
+            ];
+        } catch (Throwable $e) {
+            return "Error en database" . $e;
+        }
     }
 
-    public static function editar_usuario($request)
+
+    /**
+     * Verifica en la base de datos que los elementos email y documento no se encuentren registrados
+     * por otro usuario en la base de datos. Si las condiciones se cumplen actualiza los datos de este usuario.
+     *
+     * @param mixed $request
+     * @return string | String que especifica algun inconveniente.
+     * @return catch | Error en la base de datos.
+     * 
+     */
+    public static function actualizar_tabla($request)
     {
-        $sql = 'SELECT * FROM users WHERE id =' . $request->id;
-        $objeto_consulta = DB::select($sql);
-
-        return [
-            "status" => 1,
-            "msg" => "Datos del usuario!",
-            "data" => $objeto_consulta
-        ];
-    }
-
-    public static function actualizar_tabla($request){
-        
-        // Query que toma valor segun condiciones especificas.
         $sql = 'SELECT id FROM users WHERE email= ?';
-        //Trae el id del email que sea igual al que desea actualizar el usuario.
         $consulta = DB::connection()->select(DB::raw($sql), [$request->email]);
 
         $emailExistencia = $consulta;
@@ -78,8 +110,6 @@ class Admin extends Model
                 return 'email_existente';
             }
         }
-
-        // Trae el id del email que sea igual al que desea actualizar el usuario.
 
         $sql_consulta2 = 'SELECT id FROM users WHERE documento= ?';
         $consulta2 = DB::connection()->select(DB::raw($sql_consulta2), [
@@ -97,13 +127,6 @@ class Admin extends Model
                 return 'documento_existente';
             }
         }
-        /**
-         * Valida las diferentes condiciones que se den para actualizar la query, enviara la consulta sql
-         * correcta del dato que desea cambiar el usuario.
-         *
-         * Si el usuario solo desea cambiar su nombre, se actualizara la tabla con la query especifica que
-         * realizara esa accion.
-         */
 
         try {
             $sql = 'UPDATE users SET users.name = ?, email = ? , documento = ? WHERE id = ?';
@@ -115,9 +138,8 @@ class Admin extends Model
             ]);
 
             return "Cambios realizados correctamente";
-
         } catch (Throwable $e) {
-            return "Error en database". $e;
+            return "Error en database" . $e;
         }
     }
 }
