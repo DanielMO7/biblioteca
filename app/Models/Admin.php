@@ -11,7 +11,6 @@ class Admin extends Model
 {
     use HasFactory;
 
-
     /**
      * Selecciona de la tabla users todos los elementos que su valor en estado sea igual a 1
      *
@@ -48,7 +47,7 @@ class Admin extends Model
         try {
             $sql = 'UPDATE users SET estado = 0 WHERE id =' . $id;
             $consulta = DB::connection()->select(DB::raw($sql));
-    
+
             return [
                 "status" => 1,
                 "msg" => "Usuario eliminado correctamente",
@@ -57,7 +56,7 @@ class Admin extends Model
             return "Error en database" . $e;
         }
     }
-    
+
 
     /**
      * Selecciona de la tabla users los datos de la fila cuyo a id sea igual al id recibido como pametro.
@@ -72,7 +71,7 @@ class Admin extends Model
         try {
             $sql = 'SELECT * FROM users WHERE id =' . $id;
             $consulta = DB::connection()->select(DB::raw($sql));
-    
+
             return [
                 "status" => 1,
                 "msg" => "Lista Usuarios",
