@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::post('insertar', [UserController::class, 'insertar']);
+Route::post('validar-datos-registro', [UserController::class, 'validar_datos_registro']);
 Route::post('ingresar', [AuthController::class, 'ingresar']);
 Route::get('cerrar-sesion', [AuthController::class, 'cerrar_sesion']);
 

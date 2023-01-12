@@ -23,7 +23,7 @@ class UserController extends Controller
             'name' => 'required',
             'email' => 'required|email|unique:users',
             'documento' => 'required|integer|unique:users',
-            'rol' => 'required',
+            'rol' => 'required|integer',
             'password' => 'required'
         ]);
 
@@ -40,6 +40,55 @@ class UserController extends Controller
             "status" => 1,
             "msg" => "Registro de usuario exitoso!",
         ]);
+    }
+
+    public function validar_datos_registro(Request $request)
+    {
+        $request->validate([
+            'documento' => 'integer|required',
+            'email' => 'required'
+        ]);
+        $sql_validar_documento = "SELECT
+                COUNT( 'documento' ) AS conteo_documento
+            FROM
+                users 
+            WHERE
+                documento = ?";
+        $validar_documento = DB::connection()->select(DB::raw($sql_validar_documento), [
+            $request->documento
+        ]);
+
+        $sql_validar_email = "SELECT
+                COUNT( 'email' ) AS conteo_email
+            FROM
+                users 
+            WHERE
+                email = ?";
+        $validar_email = DB::connection()->select(DB::raw($sql_validar_email), [
+            $request->email
+        ]);
+
+        if ($validar_documento[0]->conteo_documento && $validar_email[0]->conteo_email) {
+            return response()->json([
+                "status" => 1,
+                "msg" => "Documento y Email existentes"
+            ]);
+        } else if ($validar_documento[0]->conteo_documento) {
+            return response()->json([
+                "status" => 2,
+                "msg" => "Documento Existente!"
+            ]);
+        } else if ($validar_email[0]->conteo_email) {
+            return response()->json([
+                "status" => 3,
+                "msg" => "Email Existente!"
+            ]);
+        } else {
+            return response()->json([
+                "status" => 4,
+                "msg" => "No existen ni el documento ni el email!"
+            ]);
+        }
     }
 
 
@@ -92,7 +141,7 @@ class UserController extends Controller
         ]);
 
         $objeto_consulta = User::actualizar_tabla($request);
-        
+
         return response()->json([
             "data" => $objeto_consulta
         ]);
@@ -114,7 +163,7 @@ class UserController extends Controller
             'contrasena_anterior' => 'required',
         ]);
         $objeto_consulta = User::verficiar_cambiar_contrasena($request);
-        
+
         return response()->json([
             "data" => $objeto_consulta
         ]);
