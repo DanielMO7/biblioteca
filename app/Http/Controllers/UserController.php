@@ -48,25 +48,34 @@ class UserController extends Controller
             'documento' => 'integer|required',
             'email' => 'required'
         ]);
-        $sql_validar_documento = "SELECT
+
+        try {
+            $sql_validar_documento = "SELECT
                 COUNT( 'documento' ) AS conteo_documento
             FROM
                 users 
             WHERE
                 documento = ?";
-        $validar_documento = DB::connection()->select(DB::raw($sql_validar_documento), [
-            $request->documento
-        ]);
+            $validar_documento = DB::connection()->select(DB::raw($sql_validar_documento), [
+                $request->documento
+            ]);
+        } catch (Throwable $e) {
+            return "Error en consulta documento: " . $e;
+        }
 
-        $sql_validar_email = "SELECT
+        try {
+            $sql_validar_email = "SELECT
                 COUNT( 'email' ) AS conteo_email
             FROM
                 users 
             WHERE
                 email = ?";
-        $validar_email = DB::connection()->select(DB::raw($sql_validar_email), [
-            $request->email
-        ]);
+            $validar_email = DB::connection()->select(DB::raw($sql_validar_email), [
+                $request->email
+            ]);
+        } catch (Throwable $e) {
+            return "Error en consulta email: " . $e;
+        }
 
         if ($validar_documento[0]->conteo_documento && $validar_email[0]->conteo_email) {
             return response()->json([
