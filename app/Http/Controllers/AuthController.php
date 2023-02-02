@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    public function ingresar(Request $request){
+    public function ingresar(Request $request)
+    {
         $request->validate([
             'email' => 'required|email',
             'password' => 'required'
@@ -16,8 +17,8 @@ class AuthController extends Controller
 
         $user = User::where("email", "=", $request->email)->first();
 
-        if (isset($user->id)){
-            if(Hash::check($request->password, $user->password)){
+        if (isset($user->id)) {
+            if (Hash::check($request->password, $user->password)) {
                 $token = $user->createToken("auth_token")->plainTextToken;
 
                 return response()->json([
@@ -25,29 +26,29 @@ class AuthController extends Controller
                     "msg" => "Usuario logueado exitosamente.",
                     "access_token"  => $token,
                     "rol" => $user->rol
-                ]);
-            }else{
+                ], 200);
+            } else {
+                // 401 No Autorizado
                 return response()->json([
                     "status" => 0,
                     "msg" => "La contraseña es incorrecta!",
-                ], 404);
+                ], 401);
             }
-
-        }else{
+        } else {
+            // 403 El acceso a ese recurso está prohibido
             return response()->json([
-                "status" => 0,
+                "status" => 2,
                 "msg" => "Usuario no registrado!",
-            ], 404);
-
+            ], 403);
         }
-
     }
-    public function cerrar_sesion(){
-        auth()->user()->tokens()->delete();
+    public function cerrar_sesion(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
 
         return response()->json([
             "status" => 1,
             "msg" => "Cierre de sesion"
-        ]);
+        ], 200);
     }
 }
