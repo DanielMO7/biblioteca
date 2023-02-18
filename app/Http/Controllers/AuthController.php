@@ -32,14 +32,14 @@ class AuthController extends Controller
                 return response()->json([
                     "status" => 0,
                     "msg" => "La contraseña es incorrecta!",
-                ], 401);
+                ]);
             }
         } else {
             // 403 El acceso a ese recurso está prohibido
             return response()->json([
                 "status" => 2,
                 "msg" => "Usuario no registrado!",
-            ], 403);
+            ]);
         }
     }
     public function cerrar_sesion(Request $request)
@@ -50,5 +50,9 @@ class AuthController extends Controller
             "status" => 1,
             "msg" => "Cierre de sesion"
         ], 200);
+    }
+    public function validar_token(Request $request)
+    {
+        return true;
     }
 }
