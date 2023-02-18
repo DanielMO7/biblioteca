@@ -18,6 +18,7 @@ Route::controller(HomeController::class)->prefix('home')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->controller(AuthController::class)->group(function () {
+    Route::post('validar-token', 'validar_token');
     Route::post('cerrar-sesion', 'cerrar_sesion');
 });
 
