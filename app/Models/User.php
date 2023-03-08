@@ -21,7 +21,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email','documento', 'rol', 'password',
+        'name', 'email', 'documento', 'rol', 'password',
     ];
 
     /**
@@ -43,14 +43,14 @@ class User extends Authenticatable
      * @return json | Array con los datos del usuario a actualizar.
      */
     public static function editar_usuario($id)
-    {   
+    {
         if (auth('sanctum')->user()->id != $id) {
             return 'No autorizado.';
         }
         try {
             $sql = 'SELECT * FROM users WHERE id =' . $id;
             $objeto_consulta = DB::select($sql);
-    
+
             return [
                 "status" => 1,
                 "msg" => "Datos del usuario!",
@@ -70,10 +70,13 @@ class User extends Authenticatable
      * @param mixed $request
      * @return json | Retorna un mensaje especificando un inconveniente o aprobacion de la accion.
      */
-    public static function actualizar_tabla($request){
+    public static function actualizar_tabla($request)
+    {
 
         if (auth('sanctum')->user()->id != $request->id) {
-            return 'No autorizado.';
+            return response()->json([
+                "msg" => "No autorizado."
+            ], 401);
         }
 
         // Query que toma valor segun condiciones especificas.
@@ -90,7 +93,10 @@ class User extends Authenticatable
          */
         if (count($emailExistencia) > 0) {
             if ($emailExistencia[0]->id != $request->id) {
-                return 'email_existente';
+                return response()->json([
+                    "status" => 2,
+                    "msg" => "Email Existente"
+                ], 200);
             }
         }
 
@@ -110,7 +116,10 @@ class User extends Authenticatable
          */
         if (count($documentoExistencia) > 0) {
             if ($documentoExistencia[0]->id != $request->id) {
-                return 'documento_existente';
+                return response()->json([
+                    "status" => 3,
+                    "msg" => "Documento Existente"
+                ], 200);
             }
         }
         /**
@@ -127,10 +136,15 @@ class User extends Authenticatable
                 $request->id,
             ]);
 
-            return "Cambios realizados correctamente";
-
+            return response()->json([
+                "status" => 1,
+                "msg" => "Datos Actualizados Correctamente"
+            ], 200);
         } catch (Throwable $e) {
-            return "Error en database". $e;
+            return response()->json([
+                "msg" => "Error en database",
+                "data" => $e
+            ], 404);
         }
     }
 
@@ -147,14 +161,17 @@ class User extends Authenticatable
     public static function verficiar_cambiar_contrasena($request)
     {
         if (auth('sanctum')->user()->id != $request->id) {
-            return 'No autorizado.';
+            return response()->json([
+                "status" => 0,
+                "msg" => "No autorizado.",
+            ], 404);
         }
         if ($request->contrasena_nueva == $request->contrasena_verificar) {
             $sql = "SELECT * FROM users WHERE id = ?";
             $sentencia = DB::connection()->select(DB::raw($sql), [
                 $request->id,
             ]);
-            try{
+            try {
                 foreach ($sentencia as $usuario) {
                     if (Hash::check($request->contrasena_anterior, $usuario->password)) {
                         $sql = "UPDATE users SET users.password = ? WHERE id = ?";
@@ -163,29 +180,29 @@ class User extends Authenticatable
                             $contrasena_has,
                             $request->id,
                         ]);
-                        return [
-                            "status" => 1,
-                            "msg" => "Contraseña actualizada correctamente!",
-                        ];
-                    } else {
-                        return [
+                        return response()->json([
                             "status" => 0,
+                            "msg" => "Contraseña actualizada correctamente!",
+                        ], 200);
+                    } else {
+                        return response()->json([
+                            "status" => 1,
                             "msg" => "Contraseña incorrecta!",
-                        ];
+                        ], 200);
                     }
                 }
-            }catch(Throwable $e){
-                return [
-                    "status" => 0,
+            } catch (Throwable $e) {
+                return response()->json([
+                    "status" => 1,
                     "msg" => "Error en database!",
-                ];
+                    "data" => $e,
+                ], 401);
             }
         } else {
-            return [
-                "status" => 0,
-                "msg" => "Las contraseñas no son iguales",
-            ];
+            return response()->json([
+                "status" => 2,
+                "msg" => "Las contraseñas no son iguales"
+            ], 200);
         }
     }
-
 }
