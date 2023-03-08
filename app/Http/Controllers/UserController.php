@@ -149,11 +149,11 @@ class UserController extends Controller
             'documento' => 'required|integer',
         ]);
 
-        $objeto_consulta = User::actualizar_tabla($request);
+        return User::actualizar_tabla($request);
 
-        return response()->json([
-            "data" => $objeto_consulta
-        ]);
+        // return response()->json([
+        //     "data" => $objeto_consulta
+        // ]);
     }
 
 
@@ -171,10 +171,10 @@ class UserController extends Controller
             'contrasena_verificar' => 'required',
             'contrasena_anterior' => 'required',
         ]);
-        $objeto_consulta = User::verficiar_cambiar_contrasena($request);
+        return User::verficiar_cambiar_contrasena($request);
 
-        return response()->json([
-            "data" => $objeto_consulta
-        ]);
+        // return response()->json([
+        //     "data" => $objeto_consulta
+        // ]);
     }
 }
