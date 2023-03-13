@@ -128,7 +128,7 @@ class User extends Authenticatable
          * 
          */
         try {
-            $sql = 'UPDATE users SET users.name = ?, email = ? , documento = ? WHERE id = ?';
+            $sql = 'UPDATE users SET users.name = ?, email = ? , documento = ?, updated_at = now()  WHERE id = ?';
             $sentencia = DB::connection()->select(DB::raw($sql), [
                 $request->name,
                 $request->email,
@@ -174,7 +174,7 @@ class User extends Authenticatable
             try {
                 foreach ($sentencia as $usuario) {
                     if (Hash::check($request->contrasena_anterior, $usuario->password)) {
-                        $sql = "UPDATE users SET users.password = ? WHERE id = ?";
+                        $sql = "UPDATE users SET users.password = ?, updated_at = now() WHERE id = ?";
                         $contrasena_has = Hash::make($request->contrasena_nueva);
                         $sentencia = DB::connection()->select(DB::raw($sql), [
                             $contrasena_has,
